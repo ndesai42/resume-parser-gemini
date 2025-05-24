@@ -29,6 +29,18 @@ async def apply_for_job(
 
         # Analyze job and generate responses
         analyzer = JobAnalyzer(ai_provider_name=ai_provider)
+        
+        # First, get tailored bullet points
+        tailored_bullets = analyzer.tailor_bullet_points(job_description, resume_data)
+        
+        # Update resume data with tailored bullets
+        tailored_data = json.loads(tailored_bullets)
+        for exp in tailored_data["tailored_experience"]:
+            for resume_exp in resume_data["work_experience"]:
+                if exp["company"] == resume_exp["company"] and exp["title"] == resume_exp["title"]:
+                    resume_exp["responsibilities"] = exp["tailored_bullets"]
+        
+        # Now analyze the job with the tailored resume
         analysis = analyzer.analyze_job_description(job_description, resume_data)
         application_responses = analyzer.generate_application_responses(analysis)
 
@@ -44,7 +56,8 @@ async def apply_for_job(
 
             return JSONResponse({
                 "status": "success",
-                "message": "Application submitted successfully"
+                "message": "Application submitted successfully",
+                "tailored_bullets": tailored_data
             })
 
         finally:

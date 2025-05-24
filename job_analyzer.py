@@ -12,7 +12,7 @@ class JobAnalyzer:
     def analyze_job_description(self, job_description: str, resume_data: Dict[str, Any]) -> Dict[str, Any]:
         """Analyze job description and match it with resume data to create tailored responses."""
         prompt = f"""
-        Analyze the following job description and resume data to create tailored responses for a Workday application.
+        Analyze the following job description and resume data to create tailored responses for a Workday powered job application.
         Focus on matching skills, experiences, and qualifications.
 
         Job Description:
@@ -74,5 +74,42 @@ class JobAnalyzer:
         """
 
         system_prompt = "You are an expert at crafting professional job application responses. Return the response in valid JSON format."
+
+        return self.ai_provider.generate_response(prompt, system_prompt)
+
+    def tailor_bullet_points(self, job_description: str, resume_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Tailor bullet points to match job description while preserving core content."""
+        prompt = f"""
+        Analyze the following job description and resume data to tailor the bullet points for each work experience.
+        Focus on making minor adjustments to emphasize relevant skills and experiences while preserving the core content and achievements.
+
+        Job Description:
+        {job_description}
+
+        Resume Data:
+        {resume_data}
+
+        For each work experience, provide tailored bullet points that:
+        1. Maintain the original achievements and metrics
+        2. Slightly rephrase to emphasize skills mentioned in the job description
+        3. Keep the same level of detail and specificity
+        4. Don't add or remove any major responsibilities
+        5. Don't change any dates, company names, or job titles
+
+        Return the response in JSON format with the following structure:
+        {{
+            "tailored_experience": [
+                {{
+                    "company": "Company Name",
+                    "title": "Job Title",
+                    "dates": "Start Date - End Date",
+                    "original_bullets": ["Original bullet 1", "Original bullet 2"],
+                    "tailored_bullets": ["Tailored bullet 1", "Tailored bullet 2"]
+                }}
+            ]
+        }}
+        """
+
+        system_prompt = "You are an expert at tailoring resume bullet points to match job descriptions while preserving the core content and achievements. Return the response in valid JSON format."
 
         return self.ai_provider.generate_response(prompt, system_prompt) 
